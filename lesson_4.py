@@ -1,4 +1,4 @@
-from random import randint, choice
+from random import randint, choice, random
 
 
 class GameEntity:
@@ -87,16 +87,58 @@ class Warrior(Hero):
 
 
 class Witcher(Hero):
-    pass
-
-class Magic(Hero):
-    def __init__(self, name, health, damage):
-        super().__init__(name, health, damage, 'BOOST')
-
-    def apply_super_power(self, boss: Boss, heroes: list):
-        # TODO Here will be implementation of Boosting
+    def __init__(self, name, health):
+        super().__init__(name, health, damage=0, ability='REVIVE') # Урон 0 - он/она не атакует
+        self.has_revived = False # может оживить только один раз
+    def attack(self, boss: Boss):
         pass
 
+    def apply_super_power(self, boss: Boss, heroes, dead_heroes, round_number: list):
+        if not self.has_revived and dead_heroes:
+           hero_to_revive = dead_heroes[0]
+        if hero_to_revive <= 0:
+            print(f"{self.name} жертвует собой ради {hero_to_revive.name}!")
+            hero_to_revive.hp = 100
+            self.hp = 0 # сам/сама умирает
+            self.has_revived = True
+            dead_heroes.remove(hero_to_revive)
+        dead_heroes = []
+        for hero in heroes:
+            if hero.health <= 0 and hero not in dead_heroes:
+                dead_heroes.append(hero)
+
+class Magic(Hero):
+    def __init__(self, name, health, damage, boost_amount):
+        super().__init__(name, health, damage, 'BOOST')
+        self.boost_amount = boost_amount
+
+    def apply_super_power(self, boss: Boss, heroes, *args: list):
+        if round_number <= 4:
+            print(f"{self.name} усиливает атаку всех героев на {self.boost_amount}!")
+            for hero in heroes:
+               if hero.health > 0 and hero is not self:
+                   hero.damage += self.boost_amount
+
+
+class Druid(Hero):
+    def __init__(self, name, health, damage):
+        super().__init__(name, health, damage, ability='SUMMON')
+        self.helper_summoned = False
+
+    def apply_super_power(self, boss: Boss, heroes: list):
+        if not self.helper_summoned:
+            self.helper_summoned = True
+            choice = random.choice(["angel", "crow"])
+
+            if choice == "angel":
+                print("Druid призвал ангела! Healer лечит сильнее.")
+                for hero in heroes:
+                    if isinstance(hero, Healer):
+                        hero.heal_bonus += 20
+                    elif choice == "crow":
+                        if boss.health < boss.max_health / 2:
+                            print("Druid призвал ворона! Босс стал агрессивнее.")
+                            boss.damage = int(boss.damage * 1.5)
 
 class Healer(Hero):
     def __init__(self, name, health, damage, heal_points):
@@ -126,8 +168,27 @@ class Berserk(Hero):
         boss.health -= self.blocked_damage
         print(f'Berserk {self.name} reverted {self.blocked_damage} damage to boss.')
 
+class Samurai(Hero):
+    def __init__(self, name, health, damage, shuriken_power):
+        super().__init__(name, health, damage, ability='SHURIKEN')
+        self.shuriken_power = shuriken_power
+
+    def apply_super_power(self, boss: Boss, heroes: list):
+        shuriken_type = random.choice(["virus", "vaccine"])
+
+        if shuriken_type == "virus":
+            print(f"Samurai кидает вирус-шурикен! Босс теряет {self.shuriken_power} Health.")
+            boss.take_damage(self.shuriken_power)
+        else:
+            print(f"Samurai кидает вакцину-шурикен! Босс восстанавливает {self.shuriken_power} Health.")
+            boss.health += self.shuriken_power
+            if boss.health > boss.max_health:
+                boss.health = boss.max_health
+
 
 round_number = 0
+
+
 
 
 def play_round(boss: Boss, heroes: list):
@@ -162,10 +223,14 @@ def start_game():
 
     warrior_1 = Warrior('Anton', 280, 10)
     warrior_2 = Warrior('Akakii', 270, 15)
-    magic = Magic('Itachi', 290, 10)
+    magic = Magic('Itachi', 290, 10, 10)
     doc = Healer('Aibolit', 250, 5, 15)
     assistant = Healer('Dulittle', 300, 5, 5)
     berserk = Berserk('Guts', 260, 10)
+    witcher = Witcher("Morgana", 230)
+    druid = Druid("Malfurion", 248, 7)
+    samurai = Samurai("Jack", 239, 11, 8)
+
 
     heroes_list = [warrior_1, doc, warrior_2, magic, berserk, assistant]
 
