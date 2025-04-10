@@ -120,6 +120,23 @@ class Magic(Hero):
                    hero.damage += self.boost_amount
 
 
+class Hacker(Hero):
+    def __init__(self, name, health, damage, steal_amount):
+        super().__init__(name, health, damage)
+
+    def apply_super_power(self, boss: Boss, heroes, round_number, *args: list):
+        if round_number % 2 == 0 and self.hp > 0 and boss.health > 0:
+            boss.health -= self.steal_amount
+            if boss.health < 0:
+                boss.health = 0
+
+                alive_heroes = [hero for hero in heroes if hero.health > 0 and hero is not self]
+                if alive_heroes:
+                    chosen_hero = random.choice(alive_heroes)
+                    chosen_hero.health += self.steal_amount
+
+                    print(f"{self.name} украл {self.steal_amount} Health у босса и передал {chosen_hero.name}.")
+
 class Druid(Hero):
     def __init__(self, name, health, damage):
         super().__init__(name, health, damage, ability='SUMMON')
@@ -230,7 +247,7 @@ def start_game():
     witcher = Witcher("Morgana", 230)
     druid = Druid("Malfurion", 248, 7)
     samurai = Samurai("Jack", 239, 11, 8)
-
+    hacker = Hacker("Zero", 220, 8, 10)
 
     heroes_list = [warrior_1, doc, warrior_2, magic, berserk, assistant]
 
