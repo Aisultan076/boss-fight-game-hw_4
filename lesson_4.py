@@ -122,7 +122,7 @@ class Magic(Hero):
 
 class Hacker(Hero):
     def __init__(self, name, health, damage, steal_amount):
-        super().__init__(name, health, damage)
+        super().__init__(name, health, damage, ability='STEAL')
 
     def apply_super_power(self, boss: Boss, heroes, round_number, *args: list):
         if round_number % 2 == 0 and self.hp > 0 and boss.health > 0:
