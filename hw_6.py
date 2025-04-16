@@ -9,29 +9,29 @@ def bubble_sort(arr):
                 arr[j], arr[j + 1] = arr[j + 1], arr[j]
     return arr
 
-def binary_search(target, arr):
+def binary_search(arr, target):
     low = 0
     high = len(arr) - 1
 
     while low <= high:
         mid = (low + high) // 2
+        print(f"Проверка индекса {mid}, значение {arr[mid]}")
+
         if arr[mid] == target:
             print(f"Элемент {target} найден на позиции {mid}")
-            return
-        elif target < arr[mid]:
-            high = mid - 1
-        else:
+            return mid
+        elif arr[mid] < target:
+            print(f"{arr[mid]} < {target} — ищем справа")
             low = mid + 1
+        else:
+            print(f"{arr[mid]} > {target} — ищем слева")
+            high = mid - 1
 
-    print(f"Элемент {target} не найден в списке")
+    print(f"Элемент {target} не найден.")
+    return -1
 
-
-# Несортированный список
-unsorted_list = [12, 4, 5, 33, 7, 1, 19, 45]
-
-# Сортируем список
+unsorted_list = [22, 5, 17, 1, 34, 10, 45, 52]
 sorted_list = bubble_sort(unsorted_list)
 print("Отсортированный список:", sorted_list)
 
-# Ищем элемент в отсортированном списке
-binary_search(7, sorted_list)
+binary_search(sorted_list, 17)
